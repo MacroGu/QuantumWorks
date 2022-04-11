@@ -34,11 +34,14 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	UE_LOG(LogTemp, Warning, TEXT("UGameplayAbilityGroundPound::ActivateAbility"));
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
+
+
 
 
 }

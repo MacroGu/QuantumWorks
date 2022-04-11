@@ -33,6 +33,12 @@ public class QuantumWorks : ModuleRules
 		AddIncludePath(ModuleDirectory);
 
 		AddIncludePath(Path.Combine(Path.GetFullPath(Target.RelativeEnginePath), "Source", "Editor"));
+
+
+		if (Target.Configuration != UnrealTargetConfiguration.Shipping)
+		{
+			OptimizeCode = CodeOptimization.Never;
+		}
 	}
 
 
