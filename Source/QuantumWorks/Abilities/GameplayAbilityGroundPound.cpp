@@ -1,13 +1,9 @@
 #include "GameplayAbilityGroundPound.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbilityTypes.h"
-#include "Animation/AnimInstance.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "Camera/CameraComponent.h"
 
+
+#include "QuantumWorksCharacter.h"
 
 
 
@@ -40,6 +36,21 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
 		return;
 	}
+
+	AQuantumWorksCharacter* Hero = Cast<AQuantumWorksCharacter>(GetAvatarActorFromActorInfo());
+	if (!Hero)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+
+	FRotator LaunchDirection = Hero->GetActorRotation();
+	FVector LaunchVelocity = {0, 0, 1500};
+
+
+
+
+	Hero->LaunchCharacter(LaunchVelocity, true, true);
 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 
