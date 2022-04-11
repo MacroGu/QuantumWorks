@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "AbilitySystemInterface.h"
+#include "Abilities/QwAbilitySystemComponent.h"
 #include "QuantumWorksCharacter.generated.h"
 
 class UInputComponent;
@@ -15,7 +17,7 @@ class UAnimMontage;
 class USoundBase;
 
 UCLASS(config=Game)
-class AQuantumWorksCharacter : public ACharacter
+class AQuantumWorksCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -37,9 +39,37 @@ class AQuantumWorksCharacter : public ACharacter
 
 public:
 	AQuantumWorksCharacter();
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override;
+	virtual void OnRep_Controller() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+
 
 protected:
 	virtual void BeginPlay();
+	// Client only
+	virtual void OnRep_PlayerState() override;
+
+	void BindASCInput();
+	// Implement IAbilitySystemInterface
+	UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual void AddCharacterAbilities();
+	void InitializeAttributes();
+
+protected:
+	// Default abilities for this Character. These will be removed on Character death and regiven if Character respawns.
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ExWorldTest|Abilities")
+	TArray<TSubclassOf<class UQwGameplayAbility>> CharacterAbilities;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ExWorldTest|Abilities")
+	TSubclassOf<class UGameplayEffect> DefaultAttributes;
+
+	TWeakObjectPtr<class UQwAbilitySystemComponent> AbilitySystemComponent;
+	TWeakObjectPtr<class UQwAttributeSetBase> AttributeSetBase;
+
+
 
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -70,6 +100,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	bool ASCInputBound = false;
+
 protected:
 	
 	/** Fires a projectile. */
@@ -92,11 +124,6 @@ protected:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
-
-protected:
-	// APawn interface
-	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
-	// End of APawn interface
 
 public:
 	/** Returns Mesh1P subobject **/

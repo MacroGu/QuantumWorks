@@ -10,7 +10,13 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
-#include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
+#include "XRMotionControllerBase.h"
+
+#include "QuantumWorksPlayerState.h"
+#include "Abilities/AttributeSets/QwAttributeSetBase.h"
+
+
+
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -105,6 +111,8 @@ void AQuantumWorksCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 	PlayerInputComponent->BindAxis("TurnRate", this, &AQuantumWorksCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AQuantumWorksCharacter::LookUpAtRate);
+
+	BindASCInput();
 }
 
 void AQuantumWorksCharacter::OnFire()
@@ -174,4 +182,122 @@ void AQuantumWorksCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AQuantumWorksCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	AQuantumWorksPlayerState* PS = GetPlayerState<AQuantumWorksPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	AbilitySystemComponent = Cast<UQwAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+	PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+
+	AttributeSetBase = PS->GetAttributeSetBase();
+
+	InitializeAttributes();
+	AddCharacterAbilities();
+}
+
+void AQuantumWorksCharacter::AddCharacterAbilities()
+{
+	// Grant abilities, but only on the server	
+	if (GetLocalRole() != ROLE_Authority || !AbilitySystemComponent.IsValid() || AbilitySystemComponent->CharacterAbilitiesGiven)
+	{
+		return;
+	}
+
+	for (TSubclassOf<UQwGameplayAbility>& StartupAbility : CharacterAbilities)
+	{
+		AbilitySystemComponent->GiveAbility(
+			FGameplayAbilitySpec(StartupAbility, 1, static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
+	}
+
+	AbilitySystemComponent->CharacterAbilitiesGiven = true;
+}
+
+void AQuantumWorksCharacter::InitializeAttributes()
+{
+	if (!AbilitySystemComponent.IsValid())
+	{
+		return;
+	}
+
+	if (!DefaultAttributes)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Missing DefaultAttributes for %s. Please fill in the character's Blueprint."), *FString(__FUNCTION__), *GetName());
+		return;
+	}
+
+	// Can run on Server and Client
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, 0, EffectContext);
+	if (NewHandle.IsValid())
+	{
+		FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
+	}
+
+}
+
+void AQuantumWorksCharacter::UnPossessed()
+{
+
+}
+
+void AQuantumWorksCharacter::OnRep_Controller()
+{
+	Super::OnRep_Controller();
+
+	// Our controller changed, must update ActorInfo on AbilitySystemComponent
+	if (AbilitySystemComponent.IsValid())
+	{
+		AbilitySystemComponent->RefreshAbilityActorInfo();
+	}
+}
+
+void AQuantumWorksCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+}
+
+UAbilitySystemComponent* AQuantumWorksCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent.Get();
+}
+
+void AQuantumWorksCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	AQuantumWorksPlayerState* PS = GetPlayerState<AQuantumWorksPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	AbilitySystemComponent = Cast<UQwAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+
+	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+	BindASCInput();
+
+	AttributeSetBase = PS->GetAttributeSetBase();
+
+}
+
+void AQuantumWorksCharacter::BindASCInput()
+{
+	if (!ASCInputBound && AbilitySystemComponent.IsValid() && IsValid(InputComponent))
+	{
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString(TEXT("ConfirmTarget")), FString("CancelTarget"), FString("EAbilityInputID")));
+
+		ASCInputBound = true;
+	}
 }
