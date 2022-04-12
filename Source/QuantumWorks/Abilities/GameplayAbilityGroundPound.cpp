@@ -42,25 +42,42 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 		return;
 	}
 
-	FVector NewLocation = Hero->GetActorLocation();
-	NewLocation.Z += LaunchHeight;
-	Hero->SetActorLocation(NewLocation);
+	FVector LaunchVelocity(0.f, 0.f, UpwardLaunchSpeed);
+	Hero->LaunchCharacter(LaunchVelocity, true, true);
+
 	LeftTimeHangTime = HangTime;
 	auto LaunchFlowFinished = [this](const UObject* Context, const float DeltaTime)
 	{
-		LeftTimeHangTime = LeftTimeHangTime - DeltaTime;
-		if (LeftTimeHangTime > 0)
+		AQuantumWorksCharacter* Character = Cast<AQuantumWorksCharacter>(GetAvatarActorFromActorInfo());
+		if (!Character)
+		{
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+			return false;
+		}
+		FVector UpdateLocation = Character->GetActorLocation();
+		if (UpdateLocation.Z < LaunchHeight)
 		{
 			return false;
 		}
-		UE_LOG(LogTemp, Warning, TEXT("UGameplayAbilityGroundPound::ActivateAbility %f"), DeltaTime);
-
-		return true;
+		else
+		{
+			LeftTimeHangTime = LeftTimeHangTime - DeltaTime;
+			if (LeftTimeHangTime > 0)
+			{
+				Character->GetCharacterMovement()->DisableMovement();
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
 	};
 
 	UAbilityTask_WaitForPredicate* Task = UAbilityTask_WaitForPredicate::WaitForPredicate(this, Hero, LaunchFlowFinished, -1.f);
 	Task->OnFinish.AddDynamic(this, &ThisClass::OnTaskEnd);
 	Task->ReadyForActivation();
+
 
 	Hero->GetCharacterMovement()->GravityScale = 0.f;
 }
@@ -75,6 +92,6 @@ void UGameplayAbilityGroundPound::OnTaskEnd()
 	}
 
 	Hero->GetCharacterMovement()->GravityScale = 1.f;
-
+	Hero->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }
