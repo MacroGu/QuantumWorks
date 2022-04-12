@@ -2,11 +2,12 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "Kismet/GameplayStatics.h"
+#include "Math/Vector.h"
 
 #include "QuantumWorksCharacter.h"
 #include "Tasks/AbilityTask_WaitForPredicate.h"
-
+#include "QwEnemyCharacter.h"
 
 
 UGameplayAbilityGroundPound::UGameplayAbilityGroundPound()
@@ -45,6 +46,7 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 	FVector LaunchVelocity(0.f, 0.f, UpwardLaunchSpeed);
 	Hero->LaunchCharacter(LaunchVelocity, true, true);
 
+	bAlreadyUpToApex = false;
 	LeftTimeHangTime = HangTime;
 	auto LaunchFlowFinished = [this](const UObject* Context, const float DeltaTime)
 	{
@@ -55,12 +57,14 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 			return false;
 		}
 		FVector UpdateLocation = Character->GetActorLocation();
-		if (UpdateLocation.Z < LaunchHeight)
+
+		if (UpdateLocation.Z < LaunchHeight && !bAlreadyUpToApex)
 		{
 			return false;
 		}
 		else
 		{
+			bAlreadyUpToApex = true;
 			LeftTimeHangTime = LeftTimeHangTime - DeltaTime;
 			if (LeftTimeHangTime > 0)
 			{
@@ -69,7 +73,7 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 			}
 			else
 			{
-				return true;
+				return CheckDamageToOthers();
 			}
 		}
 	};
@@ -84,14 +88,43 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 
 void UGameplayAbilityGroundPound::OnTaskEnd()
 {
+
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+}
+
+bool UGameplayAbilityGroundPound::CheckDamageToOthers()
+{
 	AQuantumWorksCharacter* Hero = Cast<AQuantumWorksCharacter>(GetAvatarActorFromActorInfo());
 	if (!Hero)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-		return;
+		return false;
 	}
 
-	Hero->GetCharacterMovement()->GravityScale = 1.f;
-	Hero->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+	if (Hero->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Falling)
+	{
+		Hero->GetCharacterMovement()->GravityScale = 1.f;
+		Hero->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
+		return false;
+	}
+
+	if (FMath::Abs(Hero->GetActorLocation().Z) > 0.01f)		// on floor
+	{
+		return false;
+	}
+
+	Hero->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	const FVector SelfLocation = Hero->GetActorLocation();
+	TArray<AActor*> AllActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), AllActors);
+	for (auto OneActor : AllActors)
+	{
+		AQwEnemyCharacter* EnemyCharacter = Cast<AQwEnemyCharacter>(OneActor);
+		if (!EnemyCharacter) continue;
+		float Distance = FVector::Dist(SelfLocation, EnemyCharacter->GetActorLocation());
+		if (Distance > ImpactRadius) continue;
+		EnemyCharacter->ReceiveDamage(DamageMultiplier * 100);
+	}
+
+	return true;
 }
