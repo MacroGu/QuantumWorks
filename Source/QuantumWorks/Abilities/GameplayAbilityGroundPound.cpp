@@ -1,9 +1,11 @@
 #include "GameplayAbilityGroundPound.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbilityTypes.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 #include "QuantumWorksCharacter.h"
+#include "Tasks/AbilityTask_WaitForPredicate.h"
 
 
 
@@ -15,22 +17,18 @@ UGameplayAbilityGroundPound::UGameplayAbilityGroundPound()
 	AbilityTags.AddTag(SpellAbilityTag);
 	ActivationOwnedTags.AddTag(SpellAbilityTag);
 
-	Range = 1000.0f;
-	Damage = 12.0f;
 }
 
 bool UGameplayAbilityGroundPound::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags , OUT FGameplayTagContainer* OptionalRelevantTags ) const
 {
 
 	return true;
-
 }
 
 void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	UE_LOG(LogTemp, Warning, TEXT("UGameplayAbilityGroundPound::ActivateAbility"));
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		CancelAbility(Handle, ActorInfo, ActivationInfo, false);
@@ -44,14 +42,39 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 		return;
 	}
 
-	FRotator LaunchDirection = Hero->GetActorRotation();
-	FVector LaunchVelocity = {0, 0, 1500};
+	FVector NewLocation = Hero->GetActorLocation();
+	NewLocation.Z += LaunchHeight;
+	Hero->SetActorLocation(NewLocation);
+	LeftTimeHangTime = HangTime;
+	auto LaunchFlowFinished = [this](const UObject* Context, const float DeltaTime)
+	{
+		LeftTimeHangTime = LeftTimeHangTime - DeltaTime;
+		if (LeftTimeHangTime > 0)
+		{
+			return false;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("UGameplayAbilityGroundPound::ActivateAbility %f"), DeltaTime);
 
+		return true;
+	};
 
+	UAbilityTask_WaitForPredicate* Task = UAbilityTask_WaitForPredicate::WaitForPredicate(this, Hero, LaunchFlowFinished, -1.f);
+	Task->OnFinish.AddDynamic(this, &ThisClass::OnTaskEnd);
+	Task->ReadyForActivation();
 
+	Hero->GetCharacterMovement()->GravityScale = 0.f;
+}
 
-	Hero->LaunchCharacter(LaunchVelocity, true, true);
+void UGameplayAbilityGroundPound::OnTaskEnd()
+{
+	AQuantumWorksCharacter* Hero = Cast<AQuantumWorksCharacter>(GetAvatarActorFromActorInfo());
+	if (!Hero)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
 
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	Hero->GetCharacterMovement()->GravityScale = 1.f;
 
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
 }

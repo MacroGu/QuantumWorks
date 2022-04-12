@@ -30,12 +30,33 @@ public:
 	/** Actually activate ability, do not call this directly. We'll call it from APAHeroCharacter::ActivateAbilitiesWithTags(). */
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
+public:
+
+
+
 protected:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	float Range;
+
+	UFUNCTION()
+	void OnTaskEnd();
+
+
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	float Damage;
+	float HangTime;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float LaunchHeight;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float DamageMultiplier;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float ImpactRadius;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float UpwardLaunchSpeed;
+
+	float LeftTimeHangTime;
 
 
 };
