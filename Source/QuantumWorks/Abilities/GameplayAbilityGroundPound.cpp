@@ -120,10 +120,24 @@ bool UGameplayAbilityGroundPound::CheckDamageToOthers()
 	for (auto OneActor : AllActors)
 	{
 		AQwEnemyCharacter* EnemyCharacter = Cast<AQwEnemyCharacter>(OneActor);
-		if (!EnemyCharacter) continue;
+
+		if (!EnemyCharacter)
+		{
+			continue;
+		}
+
+		if (EnemyCharacter->EntityTag != FGameplayTag::RequestGameplayTag(FName("Entities.NotFriendly")))
+		{
+			continue;
+		}
+
 		float Distance = FVector::Dist(SelfLocation, EnemyCharacter->GetActorLocation());
-		if (Distance > ImpactRadius) continue;
-		EnemyCharacter->ReceiveDamage(DamageMultiplier * 100);
+		if (Distance > ImpactRadius)
+		{
+			continue;
+		}
+
+		EnemyCharacter->ReceiveDamage(DamageMultiplier * Distance);
 	}
 
 	return true;

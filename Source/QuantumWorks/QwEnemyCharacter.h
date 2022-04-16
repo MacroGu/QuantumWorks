@@ -27,14 +27,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	class UWidgetComponent* UIHurtDamageWidgetComponent;
 
-	void ReceiveDamage(const int32 DamageValue);
-
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ExWorld|UI")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI")
 	TSubclassOf<UQwHurtDamageShow> UIHurtDamageShowClass;
 
 	UPROPERTY(BlueprintReadWrite)
 	UQwHurtDamageShow* UIHurtDamageShowWidget;
+
+
+	void ReceiveDamage(const int32 DamageValue);
 
 protected:
 	// Called when the game starts or when spawned
