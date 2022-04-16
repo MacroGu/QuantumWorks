@@ -108,7 +108,7 @@ bool UGameplayAbilityGroundPound::CheckDamageToOthers()
 		return false;
 	}
 
-	if (FMath::Abs(Hero->GetActorLocation().Z) > 0.01f)		// on floor
+	if (FMath::Abs(Hero->GetActorLocation().Z) > 2.f)		// on floor
 	{
 		return false;
 	}

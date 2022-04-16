@@ -8,6 +8,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/InputSettings.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
@@ -15,6 +16,7 @@
 
 #include "QuantumWorksPlayerState.h"
 #include "Abilities/AttributeSets/QwAttributeSetBase.h"
+#include "QwEnemyCharacter.h"
 
 
 
@@ -61,6 +63,7 @@ void AQuantumWorksCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+	GetCharacterMovement()->GravityScale = 1.f;
 
 }
 
@@ -75,6 +78,9 @@ void AQuantumWorksCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 	// Bind jump events
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("TextUpdateHealth", IE_Pressed, this, &AQuantumWorksCharacter::TestUpdateHealthValue);
+
 
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &AQuantumWorksCharacter::MoveForward);
@@ -236,5 +242,28 @@ void AQuantumWorksCharacter::BindASCInput()
 		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString(TEXT("ConfirmTarget")), FString("CancelTarget"), FString("EAbilityInputID")));
 
 		ASCInputBound = true;
+	}
+}
+
+void AQuantumWorksCharacter::TestUpdateHealthValue()
+{
+
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AQwEnemyCharacter::StaticClass(), FoundActors);
+	if (FoundActors.Num() == 0)
+	{
+		return;
+	}
+
+	for (auto OneActor : FoundActors)
+	{
+		AQwEnemyCharacter* EnemyCharacter = Cast<AQwEnemyCharacter>(OneActor);
+		if (!EnemyCharacter)
+		{
+			continue;
+		}
+
+		EnemyCharacter->UpdateHealthDamage(444);
+
 	}
 }

@@ -30,10 +30,19 @@ public:
 	void ReceiveDamage(const int32 DamageValue);
 
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ExWorld|UI")
+	TSubclassOf<UQwHurtDamageShow> UIHurtDamageShowClass;
+
+	UPROPERTY(BlueprintReadWrite)
+	UQwHurtDamageShow* UIHurtDamageShowWidget;
+
+	void InitWidgetComponent();
+
+	void UpdateHealthDamage(const int32 DamageValue);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY()
 	UQwHurtDamageShow* UIHurtDamageWidget;

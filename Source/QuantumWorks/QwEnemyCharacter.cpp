@@ -3,10 +3,10 @@
 
 #include "QwEnemyCharacter.h"
 #include "Components/WidgetComponent.h"
+#include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "QuantumWorksPlayerController.h"
-#include "QwAIController.h"
 #include "UI/QwHurtDamageShow.h"
 
 
@@ -16,18 +16,17 @@
 AQwEnemyCharacter::AQwEnemyCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	if (RootComponent == nullptr)
 	{
 		RootComponent = ObjectInitializer.CreateDefaultSubobject<USceneComponent>(this, TEXT("Root"));
 	}
 
-	UIHurtDamageWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(FName("HurtDamage"));
+	UIHurtDamageWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(FName("UIHurtDamageWidgetComponent"));
 	UIHurtDamageWidgetComponent->SetupAttachment(RootComponent);
-	UIHurtDamageWidgetComponent->SetWidgetSpace(EWidgetSpace::World);
-
-
+	UIHurtDamageWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	UIHurtDamageWidgetComponent->SetVisibility(false);
 
 }
 
@@ -36,22 +35,55 @@ void AQwEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	UIHurtDamageWidget = Cast<UQwHurtDamageShow>(UIHurtDamageWidgetComponent->GetUserWidgetObject());
-}
-
-void AQwEnemyCharacter::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
+	// InitWidgetComponent();
 }
 
 void AQwEnemyCharacter::ReceiveDamage(const int32 DamageValue)
 {
-	if (!UIHurtDamageWidget)
+	AQuantumWorksPlayerController* PC = Cast<AQuantumWorksPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (!PC)
 	{
 		return;
 	}
 
-	UIHurtDamageWidget->UpdateDamageHurt(DamageValue);
+	if (UIHurtDamageShowWidget)
+	{
+		UIHurtDamageShowWidget->RemoveFromParent();
+	}
+	UIHurtDamageShowWidget = CreateWidget<UQwHurtDamageShow>(PC, UIHurtDamageShowClass);
+	UIHurtDamageShowWidget->HurtDamageValue->SetText(FText::AsNumber(DamageValue));
+	UIHurtDamageWidgetComponent->SetWidget(UIHurtDamageShowWidget);
+	UIHurtDamageShowWidget->PlayHurtDamageAnimation();
+	UIHurtDamageWidgetComponent->SetVisibility(true);
 
+}
+
+void AQwEnemyCharacter::InitWidgetComponent()
+{
+	if (UIHurtDamageShowWidget)
+	{
+		return;
+	}
+
+	AQuantumWorksPlayerController* PC = Cast<AQuantumWorksPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (!PC)
+	{
+		return;
+	}
+
+	UIHurtDamageShowWidget = CreateWidget<UQwHurtDamageShow>(PC, UIHurtDamageShowClass);
+	if (!UIHurtDamageShowWidget || !UIHurtDamageWidgetComponent)
+	{
+		return;
+	}
+
+	UIHurtDamageShowWidget->HurtDamageValue->SetText(FText::AsNumber(3333));
+	UIHurtDamageWidgetComponent->SetWidget(UIHurtDamageShowWidget);
+
+
+}
+
+void AQwEnemyCharacter::UpdateHealthDamage(const int32 DamageValue)
+{
+	ReceiveDamage(DamageValue);
 }

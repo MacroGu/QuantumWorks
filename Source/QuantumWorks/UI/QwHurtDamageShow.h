@@ -16,6 +16,10 @@ class QUANTUMWORKS_API UQwHurtDamageShow : public UUserWidget
 	
 public:
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateDamageHurt(int32 HurtDamage);
+	void PlayHurtDamageAnimation();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (BindWidget))
+	class UTextBlock* HurtDamageValue = nullptr;
+
 
 };
