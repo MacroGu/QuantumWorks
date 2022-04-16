@@ -263,7 +263,7 @@ void AQuantumWorksCharacter::TestUpdateHealthValue()
 			continue;
 		}
 
-		EnemyCharacter->UpdateHealthDamage(444);
+		EnemyCharacter->ReceiveDamage(444);
 
 	}
 }

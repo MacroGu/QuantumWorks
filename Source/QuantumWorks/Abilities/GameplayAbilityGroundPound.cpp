@@ -113,7 +113,7 @@ bool UGameplayAbilityGroundPound::CheckDamageToOthers()
 		return false;
 	}
 
-	Hero->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	Hero->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	const FVector SelfLocation = Hero->GetActorLocation();
 	TArray<AActor*> AllActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), AllActors);

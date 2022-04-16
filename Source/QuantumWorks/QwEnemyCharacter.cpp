@@ -35,7 +35,6 @@ void AQwEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// InitWidgetComponent();
 }
 
 void AQwEnemyCharacter::ReceiveDamage(const int32 DamageValue)
@@ -55,35 +54,4 @@ void AQwEnemyCharacter::ReceiveDamage(const int32 DamageValue)
 	UIHurtDamageWidgetComponent->SetWidget(UIHurtDamageShowWidget);
 	UIHurtDamageShowWidget->PlayHurtDamageAnimation();
 	UIHurtDamageWidgetComponent->SetVisibility(true);
-
-}
-
-void AQwEnemyCharacter::InitWidgetComponent()
-{
-	if (UIHurtDamageShowWidget)
-	{
-		return;
-	}
-
-	AQuantumWorksPlayerController* PC = Cast<AQuantumWorksPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (!PC)
-	{
-		return;
-	}
-
-	UIHurtDamageShowWidget = CreateWidget<UQwHurtDamageShow>(PC, UIHurtDamageShowClass);
-	if (!UIHurtDamageShowWidget || !UIHurtDamageWidgetComponent)
-	{
-		return;
-	}
-
-	UIHurtDamageShowWidget->HurtDamageValue->SetText(FText::AsNumber(3333));
-	UIHurtDamageWidgetComponent->SetWidget(UIHurtDamageShowWidget);
-
-
-}
-
-void AQwEnemyCharacter::UpdateHealthDamage(const int32 DamageValue)
-{
-	ReceiveDamage(DamageValue);
 }
