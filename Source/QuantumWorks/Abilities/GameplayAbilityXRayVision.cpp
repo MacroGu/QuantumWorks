@@ -104,11 +104,11 @@ bool UGameplayAbilityXRayVision::DoRayVision()		// return true means end ability
 			{
 				if (EnemyCharacter->EntityTag == FGameplayTag::RequestGameplayTag(FName("Entities.NonFriendly")))
 				{
-					PrimitiveComponent->SetCustomDepthStencilValue((uint8)EXRay::NonFriendly);		// set outline for notfriendly
+					PrimitiveComponent->SetCustomDepthStencilValue((uint8)EXRay::NonFriendly);		// set outline for NonFriendly
 				}
 				else if (EnemyCharacter->EntityTag == FGameplayTag::RequestGameplayTag(FName("Entities.Friendly")))
 				{
-					PrimitiveComponent->SetCustomDepthStencilValue((uint8)EXRay::Friendly);		// set outline for notfriendly
+					PrimitiveComponent->SetCustomDepthStencilValue((uint8)EXRay::Friendly);		// set outline for NonFriendly
 				}
 			}
 			else

@@ -15,7 +15,6 @@
 #include "XRMotionControllerBase.h"
 
 #include "QuantumWorksPlayerState.h"
-#include "Abilities/AttributeSets/QwAttributeSetBase.h"
 #include "QwEnemyCharacter.h"
 
 
@@ -140,9 +139,6 @@ void AQuantumWorksCharacter::PossessedBy(AController* NewController)
 	AbilitySystemComponent = Cast<UQwAbilitySystemComponent>(PS->GetAbilitySystemComponent());
 	PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
 
-	AttributeSetBase = PS->GetAttributeSetBase();
-
-	InitializeAttributes();
 	AddCharacterAbilities();
 }
 
@@ -161,31 +157,6 @@ void AQuantumWorksCharacter::AddCharacterAbilities()
 	}
 
 	AbilitySystemComponent->CharacterAbilitiesGiven = true;
-}
-
-void AQuantumWorksCharacter::InitializeAttributes()
-{
-	if (!AbilitySystemComponent.IsValid())
-	{
-		return;
-	}
-
-	if (!DefaultAttributes)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s() Missing DefaultAttributes for %s. Please fill in the character's Blueprint."), *FString(__FUNCTION__), *GetName());
-		return;
-	}
-
-	// Can run on Server and Client
-	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
-	EffectContext.AddSourceObject(this);
-
-	FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, 0, EffectContext);
-	if (NewHandle.IsValid())
-	{
-		FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
-	}
-
 }
 
 void AQuantumWorksCharacter::UnPossessed()
@@ -230,9 +201,6 @@ void AQuantumWorksCharacter::OnRep_PlayerState()
 	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 
 	BindASCInput();
-
-	AttributeSetBase = PS->GetAttributeSetBase();
-
 }
 
 void AQuantumWorksCharacter::BindASCInput()

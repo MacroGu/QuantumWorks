@@ -128,7 +128,7 @@ bool UGameplayAbilityGroundPound::CheckDamageToOthers()
 			continue;
 		}
 
-		if (EnemyCharacter->EntityTag != FGameplayTag::RequestGameplayTag(FName("Entities.NotFriendly")))		// can not damage to not NotFriendly actors
+		if (EnemyCharacter->EntityTag != FGameplayTag::RequestGameplayTag(FName("Entities.NonFriendly")))		// can not damage to not NonFriendly actors
 		{
 			continue;
 		}

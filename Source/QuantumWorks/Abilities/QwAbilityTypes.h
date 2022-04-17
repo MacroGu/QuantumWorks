@@ -34,7 +34,7 @@ public:
 	TArray<TSubclassOf<UGameplayEffect>> TargetGameplayEffectClasses;
 };
 
-/** A "processed" version of RPGGameplayEffectContainer that can be passed around and eventually applied */
+/** A "processed" version of FExGameplayEffectContainer that can be passed around and eventually applied */
 USTRUCT(BlueprintType)
 struct FExGameplayEffectContainerSpec
 {

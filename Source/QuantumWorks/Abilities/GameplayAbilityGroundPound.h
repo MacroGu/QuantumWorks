@@ -19,15 +19,10 @@ public:
 
 	UGameplayAbilityGroundPound();
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TSubclassOf<UGameplayEffect> DamageGameplayEffect;
-
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 
 	/** Actually activate ability, do not call this directly. We'll call it from APAHeroCharacter::ActivateAbilitiesWithTags(). */
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-
-
 
 protected:
 
@@ -37,7 +32,6 @@ protected:
 
 	UFUNCTION()
 	bool CheckDamageToOthers();
-
 
 	// configure data
 	//How long the player stays at the apex after the upward launch but before the downward launch.

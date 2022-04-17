@@ -58,7 +58,6 @@ protected:
 	// Implement IAbilitySystemInterface
 	UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void AddCharacterAbilities();
-	void InitializeAttributes();
 	bool bIsRunningRayVision;	// to show if the ability is running
 
 
@@ -71,7 +70,6 @@ protected:
 	TSubclassOf<class UGameplayEffect> DefaultAttributes;
 
 	TWeakObjectPtr<class UQwAbilitySystemComponent> AbilitySystemComponent;
-	TWeakObjectPtr<class UQwAttributeSetBase> AttributeSetBase;
 
 
 

@@ -8,9 +8,6 @@
 #include "QwAbilitySystemComponent.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FReceivedDamageDelegate, UQwAbilitySystemComponent*, SourceASC, float, UnmitigatedDamage, float, MitigatedDamage);
-
-
 /**
  * Subclass of ability system component with game-specific data
  * Most games will need to make a game-specific subclass to provide utility functions
@@ -22,13 +19,6 @@ class QUANTUMWORKS_API UQwAbilitySystemComponent : public UAbilitySystemComponen
 	GENERATED_BODY()
 
 public:
-	bool CharacterAbilitiesGiven = false;
-	bool StartupEffectsApplied = false;
-
-	FReceivedDamageDelegate ReceivedDamage;
-
-	// Called from QwDamageExecCalculation. Broadcasts on ReceivedDamage whenever this ASC receives damage.
-	virtual void ReceiveDamage(UQwAbilitySystemComponent* SourceASC, float UnmitigatedDamage, float MitigatedDamage);
-
+	bool CharacterAbilitiesGiven = false;		// if active ability when give the ability
 
 };

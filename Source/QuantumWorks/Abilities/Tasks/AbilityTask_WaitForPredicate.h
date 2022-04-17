@@ -31,10 +31,10 @@ private:
 public:
 
 	UPROPERTY(BlueprintAssignable)
-	FEndedEvent		OnFinish;
+	FEndedEvent		OnFinish;			// delagate for OnFinished
 
 private:
-	float			TimeOut;
+	float			TimeOut;		// time out for predicate
 	float			TimeStarted;
 	FTimerHandle 	TimerHandle;
 

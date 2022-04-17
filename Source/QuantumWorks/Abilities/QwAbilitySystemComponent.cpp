@@ -4,8 +4,3 @@
 #include "QwGameplayAbility.h"
 #include "AbilitySystemGlobals.h"
 
-
-void UQwAbilitySystemComponent::ReceiveDamage(UQwAbilitySystemComponent* SourceASC, float UnmitigatedDamage, float MitigatedDamage)
-{
-	ReceivedDamage.Broadcast(SourceASC, UnmitigatedDamage, MitigatedDamage);
-}
