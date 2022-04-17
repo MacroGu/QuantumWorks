@@ -24,7 +24,10 @@ public:
 	/** Actually activate ability, do not call this directly. We'll call it from APAHeroCharacter::ActivateAbilitiesWithTags(). */
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
+	UFUNCTION()
+	void OnTaskEnd();
 
+	void DoRayVision();
 
 protected:
 
@@ -39,5 +42,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float OtherElementsThickness;
 
+
+	bool bIsRunningRayVision;
 
 };

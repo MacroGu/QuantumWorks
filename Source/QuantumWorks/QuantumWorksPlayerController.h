@@ -6,6 +6,12 @@
 #include "GameFramework/PlayerController.h"
 #include "QuantumWorksPlayerController.generated.h"
 
+
+
+
+class UMaterialInstanceDynamic;
+
+
 /**
  * 
  */
@@ -19,13 +25,18 @@ class QUANTUMWORKS_API AQuantumWorksPlayerController : public APlayerController
 public:
 	AQuantumWorksPlayerController();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMaterialInstanceDynamic* OutlineMid;
 
+
+	// configure for E ability 
+	void SetNonFriendOutlineThickness(const float Thickness);
+	void SetOthersOutlineThickness(const float Thickness);
 
 protected:
 
 	// Server only
 	virtual void OnPossess(APawn* InPawn) override;
 
-	virtual void OnRep_PlayerState() override;
 
 };

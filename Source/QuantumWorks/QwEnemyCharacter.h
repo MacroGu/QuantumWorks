@@ -36,6 +36,7 @@ public:
 
 	void ReceiveDamage(const int32 DamageValue);
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

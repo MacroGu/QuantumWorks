@@ -54,4 +54,5 @@ void AQwEnemyCharacter::ReceiveDamage(const int32 DamageValue)
 	UIHurtDamageWidgetComponent->SetWidget(UIHurtDamageShowWidget);
 	UIHurtDamageShowWidget->PlayHurtDamageAnimation();
 	UIHurtDamageWidgetComponent->SetVisibility(true);
+
 }

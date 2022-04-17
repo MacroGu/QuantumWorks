@@ -3,6 +3,7 @@
 
 #include "QuantumWorksPlayerController.h"
 
+#include "Materials/MaterialInstanceDynamic.h"
 
 #include "QuantumWorksPlayerState.h"
 #include "Abilities/QwAbilitySystemComponent.h"
@@ -26,8 +27,24 @@ void AQuantumWorksPlayerController::OnPossess(APawn* InPawn)
 	}
 }
 
-void AQuantumWorksPlayerController::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
 
+void AQuantumWorksPlayerController::SetNonFriendOutlineThickness(const float Thickness)
+{
+	if (!OutlineMid)
+	{
+		return;
+	}
+
+	OutlineMid->SetScalarParameterValue(TEXT("Outline Width Not Friend"), Thickness);
+
+}
+
+void AQuantumWorksPlayerController::SetOthersOutlineThickness(const float Thickness)
+{
+	if (!OutlineMid)
+	{
+		return;
+	}
+
+	OutlineMid->SetScalarParameterValue(TEXT("Outline Width Others"), Thickness);
 }
