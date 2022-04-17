@@ -39,7 +39,7 @@ private:
 	FTimerHandle 	TimerHandle;
 
 	UPROPERTY()
-	UObject* Object;
+	UObject* Object;		// parameter for UObject
 
 	TObjectPredicate Predicate;
 };

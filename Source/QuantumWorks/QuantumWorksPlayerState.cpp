@@ -29,9 +29,3 @@ UAbilitySystemComponent* AQuantumWorksPlayerState::GetAbilitySystemComponent() c
 {
 	return AbilitySystemComponent;
 }
-
-void AQuantumWorksPlayerState::BeginPlay()
-{
-	Super::BeginPlay();
-
-}

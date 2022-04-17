@@ -25,31 +25,20 @@ public:
 	AQwEnemyCharacter(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	class UWidgetComponent* UIHurtDamageWidgetComponent;
+	class UWidgetComponent* UIHurtDamageWidgetComponent;	// hurt damage ui component
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UI")
-	TSubclassOf<UQwHurtDamageShow> UIHurtDamageShowClass;
+	TSubclassOf<UQwHurtDamageShow> UIHurtDamageShowClass;		// configure blueprint hurt damagae ui
 
 	UPROPERTY(BlueprintReadWrite)
-	UQwHurtDamageShow* UIHurtDamageShowWidget;
+	UQwHurtDamageShow* UIHurtDamageShowWidget;		// hurt damage UI
 
-
+	// opeartions for receiving damage
 	void ReceiveDamage(const int32 DamageValue);
-
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	UPROPERTY()
-	UQwHurtDamageShow* UIHurtDamageWidget;
-
-
-
 
 public:	
 	
 	UPROPERTY(EditAnywhere)
-	FGameplayTag EntityTag;
+	FGameplayTag EntityTag;		// tag for non friend or friend
 
 };

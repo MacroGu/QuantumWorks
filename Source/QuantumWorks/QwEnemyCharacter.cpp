@@ -23,18 +23,12 @@ AQwEnemyCharacter::AQwEnemyCharacter(const FObjectInitializer& ObjectInitializer
 		RootComponent = ObjectInitializer.CreateDefaultSubobject<USceneComponent>(this, TEXT("Root"));
 	}
 
+	// create widget component
 	UIHurtDamageWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(FName("UIHurtDamageWidgetComponent"));
 	UIHurtDamageWidgetComponent->SetupAttachment(RootComponent);
 	UIHurtDamageWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	UIHurtDamageWidgetComponent->SetVisibility(false);
 
-}
-
-// Called when the game starts or when spawned
-void AQwEnemyCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	
 }
 
 void AQwEnemyCharacter::ReceiveDamage(const int32 DamageValue)
@@ -47,12 +41,13 @@ void AQwEnemyCharacter::ReceiveDamage(const int32 DamageValue)
 
 	if (UIHurtDamageShowWidget)
 	{
-		UIHurtDamageShowWidget->RemoveFromParent();
+		UIHurtDamageShowWidget->RemoveFromParent();		// remove old ui
 	}
-	UIHurtDamageShowWidget = CreateWidget<UQwHurtDamageShow>(PC, UIHurtDamageShowClass);
-	UIHurtDamageShowWidget->HurtDamageValue->SetText(FText::AsNumber(DamageValue));
+
+	UIHurtDamageShowWidget = CreateWidget<UQwHurtDamageShow>(PC, UIHurtDamageShowClass);		// create new hurt damage ui 
+	UIHurtDamageShowWidget->HurtDamageValue->SetText(FText::AsNumber(DamageValue));		// set damage value
 	UIHurtDamageWidgetComponent->SetWidget(UIHurtDamageShowWidget);
-	UIHurtDamageShowWidget->PlayHurtDamageAnimation();
-	UIHurtDamageWidgetComponent->SetVisibility(true);
+	UIHurtDamageShowWidget->PlayHurtDamageAnimation();		// play ui animation
+	UIHurtDamageWidgetComponent->SetVisibility(true);		// set the ui visible
 
 }

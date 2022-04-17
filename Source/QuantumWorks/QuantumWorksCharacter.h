@@ -25,28 +25,25 @@ class AQuantumWorksCharacter : public ACharacter, public IAbilitySystemInterface
 
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraBoom;
+	USpringArmComponent* CameraBoom;		// camera  spring
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FollowCamera;
+	UCameraComponent* FollowCamera;			// follow camera
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Gun", meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* GunComponent;
+	USkeletalMeshComponent* GunComponent;		// the gun component
 
 
 
 public:
-	USkeletalMeshComponent* GetGunComponent() const { return GunComponent; }
-	bool GetIsRunningXRayVision() const { return bIsRunningRayVision; }
+	bool GetIsRunningXRayVision() const { return bIsRunningRayVision; }		// get if the x ray ability is running
 
 public:
 	AQuantumWorksCharacter();
 	virtual void PossessedBy(AController* NewController) override;
-	virtual void UnPossessed() override;
 	virtual void OnRep_Controller() override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	UAbilitySystemComponent* GetAbilitySystemComponent() const override;	// Implement IAbilitySystemInterface
 
 
 protected:
@@ -55,8 +52,6 @@ protected:
 	virtual void OnRep_PlayerState() override;
 
 	void BindASCInput();
-	// Implement IAbilitySystemInterface
-	UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void AddCharacterAbilities();
 	bool bIsRunningRayVision;	// to show if the ability is running
 
@@ -66,12 +61,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ExWorldTest|Abilities")
 	TArray<TSubclassOf<class UQwGameplayAbility>> CharacterAbilities;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ExWorldTest|Abilities")
-	TSubclassOf<class UGameplayEffect> DefaultAttributes;
-
+	// ability component
 	TWeakObjectPtr<class UQwAbilitySystemComponent> AbilitySystemComponent;
-
-
 
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -81,10 +72,6 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
-
-	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category=Projectile)
-	TSubclassOf<class AQuantumWorksProjectile> ProjectileClass;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
@@ -98,6 +85,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	// let the ability component input binding only once
 	bool ASCInputBound = false;
 
 protected:
@@ -120,9 +108,10 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
-
+	// just test function for update health 
 	void TestUpdateHealthValue();
 
+	// check if the x ray ability is running
 	void CheckIfCanStartXRayAbility();
 };
 

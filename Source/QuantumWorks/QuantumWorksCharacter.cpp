@@ -1,7 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "QuantumWorksCharacter.h"
-#include "QuantumWorksProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -20,7 +19,6 @@
 
 
 
-DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
 //////////////////////////////////////////////////////////////////////////
 // AQuantumWorksCharacter
@@ -30,17 +28,21 @@ AQuantumWorksCharacter::AQuantumWorksCharacter()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
+	// init the camera boom component
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->bUsePawnControlRotation = true;
 	CameraBoom->SetRelativeLocation(FVector(0, 0, 68.492264));
 
+	// init the follow camera component
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(FName("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom);
 	FollowCamera->FieldOfView = 80.0f;
 
+	// init the follow camera component
 	GunComponent = CreateDefaultSubobject<USkeletalMeshComponent>(FName("Gun"));
 
+	// let ignore between cameras
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
 	// Makes sure that the animations play on the Server so that we can use bone and socket transforms
@@ -53,17 +55,14 @@ AQuantumWorksCharacter::AQuantumWorksCharacter()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
-
-	// Uncomment the following line to turn motion controllers on by default:
-	//bUsingMotionControllers = true;
 }
 
 void AQuantumWorksCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
-	GetCharacterMovement()->GravityScale = 1.f;
-	bIsRunningRayVision = false;
+	GetCharacterMovement()->GravityScale = 1.f;		// init gravity on the floor
+	bIsRunningRayVision = false;		// the x ray ability is not running at the beginning
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -93,7 +92,7 @@ void AQuantumWorksCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AQuantumWorksCharacter::LookUpAtRate);
 
-	BindASCInput();
+	BindASCInput();		// bing the gas input
 }
 
 void AQuantumWorksCharacter::MoveForward(float Value)
@@ -137,9 +136,9 @@ void AQuantumWorksCharacter::PossessedBy(AController* NewController)
 	}
 
 	AbilitySystemComponent = Cast<UQwAbilitySystemComponent>(PS->GetAbilitySystemComponent());
-	PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+	PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);			// init the ability info
 
-	AddCharacterAbilities();
+	AddCharacterAbilities();	// add the ability to character
 }
 
 void AQuantumWorksCharacter::AddCharacterAbilities()
@@ -152,16 +151,12 @@ void AQuantumWorksCharacter::AddCharacterAbilities()
 
 	for (TSubclassOf<UQwGameplayAbility>& StartupAbility : CharacterAbilities)
 	{
+		// give the ability to character
 		AbilitySystemComponent->GiveAbility(
 			FGameplayAbilitySpec(StartupAbility, 1, static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
 	}
 
-	AbilitySystemComponent->CharacterAbilitiesGiven = true;
-}
-
-void AQuantumWorksCharacter::UnPossessed()
-{
-
+	AbilitySystemComponent->CharacterAbilitiesGiven = true;		// abilities can not be given twice
 }
 
 void AQuantumWorksCharacter::OnRep_Controller()
@@ -173,12 +168,6 @@ void AQuantumWorksCharacter::OnRep_Controller()
 	{
 		AbilitySystemComponent->RefreshAbilityActorInfo();
 	}
-}
-
-void AQuantumWorksCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
 }
 
 UAbilitySystemComponent* AQuantumWorksCharacter::GetAbilitySystemComponent() const
@@ -195,16 +184,15 @@ void AQuantumWorksCharacter::OnRep_PlayerState()
 	{
 		return;
 	}
-
+	// get the AbilitySystemComponent from player state
 	AbilitySystemComponent = Cast<UQwAbilitySystemComponent>(PS->GetAbilitySystemComponent());
-
 	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
-
 	BindASCInput();
 }
 
 void AQuantumWorksCharacter::BindASCInput()
 {
+	// opertations for binding ability component input
 	if (!ASCInputBound && AbilitySystemComponent.IsValid() && IsValid(InputComponent))
 	{
 		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString(TEXT("ConfirmTarget")), FString("CancelTarget"), FString("EAbilityInputID")));

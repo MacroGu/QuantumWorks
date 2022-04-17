@@ -16,10 +16,10 @@ class QUANTUMWORKS_API UQwHurtDamageShow : public UUserWidget
 	
 public:
 	UFUNCTION(BlueprintImplementableEvent)
-	void PlayHurtDamageAnimation();
+	void PlayHurtDamageAnimation();		// hurt damage UI will be shown in the non-friend character
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (BindWidget))
-	class UTextBlock* HurtDamageValue = nullptr;
+	class UTextBlock* HurtDamageValue = nullptr;		// hurtdamage value will show in the non-friend character
 
 
 };

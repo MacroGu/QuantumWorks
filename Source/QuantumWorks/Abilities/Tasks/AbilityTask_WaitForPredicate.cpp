@@ -21,14 +21,13 @@ void UAbilityTask_WaitForPredicate::TickTask(float DeltaTime)
 		EndTask();
 	}
 
-
 }
 
 UAbilityTask_WaitForPredicate* UAbilityTask_WaitForPredicate::WaitForPredicate(UGameplayAbility* OwningAbility, UObject* Object, TObjectPredicate Predicate, float TimeOut /*= 0.0f*/)
 {
 	UAbilityTask_WaitForPredicate* Task = NewAbilityTask<UAbilityTask_WaitForPredicate>(OwningAbility);
 	Task->TimeOut = TimeOut;
-	Task->Predicate = Predicate;
+	Task->Predicate = Predicate;		// call back function
 	Task->Object = Object;
 
 	return Task;
@@ -39,7 +38,7 @@ void UAbilityTask_WaitForPredicate::Activate()
 	UWorld* World = GetWorld();
 	TimeStarted = World->GetTimeSeconds();
 
-	if (TimeOut > 0.0f)
+	if (TimeOut > 0.0f)		// time out for finishing
 	{
 		World->GetTimerManager().SetTimer(TimerHandle, this, &UAbilityTask_WaitForPredicate::OnTimeOut, TimeOut, false);
 	}
@@ -51,14 +50,14 @@ void UAbilityTask_WaitForPredicate::OnTimeOut()
 {
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
-		OnFinish.Broadcast();
+		OnFinish.Broadcast();		// brocast onfinished event
 	}
 
 	EndTask();
 }
 
 FString UAbilityTask_WaitForPredicate::GetDebugString() const
-{
+{		// debug string
 	float TimeLeft = TimeOut - GetWorld()->TimeSince(TimeStarted);
 	return FString::Printf(TEXT("WaitForPredicate. Time: %.2f. TimeLeft: %.2f"), TimeOut, TimeLeft);
 }

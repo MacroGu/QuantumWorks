@@ -34,8 +34,8 @@ void AQuantumWorksPlayerController::SetNonFriendOutlineThickness(const float Thi
 	{
 		return;
 	}
-
-	OutlineMid->SetScalarParameterValue(TEXT("Outline Width Not Friend"), Thickness);
+	// set thickness for non friend
+	OutlineMid->SetScalarParameterValue(TEXT("Outline Width Non Friend"), Thickness);
 
 }
 
@@ -46,5 +46,6 @@ void AQuantumWorksPlayerController::SetOthersOutlineThickness(const float Thickn
 		return;
 	}
 
+	// set thickness for Others
 	OutlineMid->SetScalarParameterValue(TEXT("Outline Width Others"), Thickness);
 }
