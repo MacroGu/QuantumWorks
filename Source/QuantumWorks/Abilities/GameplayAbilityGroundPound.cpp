@@ -139,7 +139,7 @@ bool UGameplayAbilityGroundPound::CheckDamageToOthers()
 			continue;
 		}
 
-		EnemyCharacter->ReceiveDamage(DamageMultiplier / Distance);  // let the damage character receive damage, the distance is big the damage will be small
+		EnemyCharacter->ReceiveDamage(DamageMultiplier * LaunchHeight / Distance);  // let the damage character receive damage, the distance is big the damage will be small, and the LaunchHeight is bigger , the damage will be bigger
 	}
 
 	return true;
