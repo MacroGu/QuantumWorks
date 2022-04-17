@@ -14,7 +14,9 @@ enum class EAbilityInputID : uint8
 	// 1 Q			
 	GroundPound		UMETA(DisplayName = "GroundPound"),
 	// 2 Jump
-	Jump			UMETA(DisplayName = "Jump")
+	Jump			UMETA(DisplayName = "Jump"),
+	// 3 E 
+	XRayVision		UMETA(DisplayName = "XRayVision")
 };
 
 /**
