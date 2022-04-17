@@ -64,7 +64,7 @@ void AQuantumWorksCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 	GetCharacterMovement()->GravityScale = 1.f;
-
+	bIsRunningRayVision = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ void AQuantumWorksCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("TextUpdateHealth", IE_Pressed, this, &AQuantumWorksCharacter::TestUpdateHealthValue);
-
+	PlayerInputComponent->BindKey(EKeys::E, IE_Pressed, this, &AQuantumWorksCharacter::CheckIfCanStartXRayAbility);
 
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &AQuantumWorksCharacter::MoveForward);
@@ -266,4 +266,16 @@ void AQuantumWorksCharacter::TestUpdateHealthValue()
 		EnemyCharacter->ReceiveDamage(444);
 
 	}
+}
+
+void AQuantumWorksCharacter::CheckIfCanStartXRayAbility()
+{
+	// double press E means end the ability of x ray vision
+	if (bIsRunningRayVision)
+	{
+		bIsRunningRayVision = false;
+		return;
+	}
+
+	bIsRunningRayVision = true;
 }

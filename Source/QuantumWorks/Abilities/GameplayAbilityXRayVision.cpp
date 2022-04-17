@@ -19,8 +19,6 @@ UGameplayAbilityXRayVision::UGameplayAbilityXRayVision()
 	AbilityTags.AddTag(SpellAbilityTag);
 	ActivationOwnedTags.AddTag(SpellAbilityTag);
 
-	bIsRunningRayVision = false;
-
 }
 
 bool UGameplayAbilityXRayVision::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags , OUT FGameplayTagContainer* OptionalRelevantTags ) const
@@ -39,12 +37,6 @@ void UGameplayAbilityXRayVision::ActivateAbility(const FGameplayAbilitySpecHandl
 		return;
 	}
 
-	if (bIsRunningRayVision)
-	{
-		bIsRunningRayVision = false;
-		return;
-	}
-
 	AQuantumWorksCharacter* Hero = Cast<AQuantumWorksCharacter>(GetAvatarActorFromActorInfo());
 	if (!Hero)
 	{
@@ -52,16 +44,9 @@ void UGameplayAbilityXRayVision::ActivateAbility(const FGameplayAbilitySpecHandl
 		return;
 	}
 
-	bIsRunningRayVision = true;
 	auto DoingRayVision = [this](const UObject* Context, const float DeltaTime)
 	{
-		if (bIsRunningRayVision)
-		{
-			DoRayVision();
-			return false;
-		}
-
-		return true;
+		return DoRayVision();
 	};
 
 	UAbilityTask_WaitForPredicate* Task = UAbilityTask_WaitForPredicate::WaitForPredicate(this, Hero, DoingRayVision, -1.f);
@@ -76,12 +61,12 @@ void UGameplayAbilityXRayVision::OnTaskEnd()
 }
 
 
-void UGameplayAbilityXRayVision::DoRayVision()
+bool UGameplayAbilityXRayVision::DoRayVision()		// return true means end ability
 {
 	AQuantumWorksPlayerController* PC = Cast<AQuantumWorksPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (!IsValid(PC))
 	{
-		return;
+		return true;
 	}
 
 	PC->SetNonFriendOutlineThickness(NonFriendlyOutlineThickness);
@@ -92,7 +77,7 @@ void UGameplayAbilityXRayVision::DoRayVision()
 	if (!Hero)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-		return;
+		return true;
 	}
 	const FVector SelfLocation = Hero->GetActorLocation();
 
@@ -124,4 +109,21 @@ void UGameplayAbilityXRayVision::DoRayVision()
 			}
 		}
 	}
+
+	if (!Hero->GetIsRunningXRayVision())
+	{
+		for (auto OneActor : AllActors)
+		{
+			UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(OneActor->GetComponentByClass(UPrimitiveComponent::StaticClass()));
+			if (!PrimitiveComponent)
+			{
+				continue;
+			}
+			PrimitiveComponent->SetCustomDepthStencilValue(3);
+		}
+
+		return true;
+	}
+
+	return false;
 }

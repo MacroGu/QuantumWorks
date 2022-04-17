@@ -14,6 +14,7 @@ UGameplayAbilityGroundPound::UGameplayAbilityGroundPound()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
+	// set the ability tag 
 	FGameplayTag SpellAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Skill.GroundPound"));
 	AbilityTags.AddTag(SpellAbilityTag);
 	ActivationOwnedTags.AddTag(SpellAbilityTag);
@@ -23,6 +24,7 @@ UGameplayAbilityGroundPound::UGameplayAbilityGroundPound()
 bool UGameplayAbilityGroundPound::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags , OUT FGameplayTagContainer* OptionalRelevantTags ) const
 {
 
+	// currently it can be activated any time
 	return true;
 }
 
@@ -36,7 +38,7 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 		return;
 	}
 
-	AQuantumWorksCharacter* Hero = Cast<AQuantumWorksCharacter>(GetAvatarActorFromActorInfo());
+	AQuantumWorksCharacter* Hero = Cast<AQuantumWorksCharacter>(GetAvatarActorFromActorInfo());		// get controlled character
 	if (!Hero)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
@@ -44,7 +46,7 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 	}
 
 	FVector LaunchVelocity(0.f, 0.f, UpwardLaunchSpeed);
-	Hero->LaunchCharacter(LaunchVelocity, true, true);
+	Hero->LaunchCharacter(LaunchVelocity, true, true);		// launch the character
 
 	bAlreadyUpToApex = false;
 	LeftTimeHangTime = HangTime;
@@ -58,22 +60,22 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 		}
 		FVector UpdateLocation = Character->GetActorLocation();
 
-		if (UpdateLocation.Z < LaunchHeight && !bAlreadyUpToApex)
+		if (UpdateLocation.Z < LaunchHeight && !bAlreadyUpToApex)		
 		{
-			return false;
+			return false;		// the character still in the process up to the apex during spell this ability
 		}
 		else
 		{
 			bAlreadyUpToApex = true;
-			LeftTimeHangTime = LeftTimeHangTime - DeltaTime;
-			if (LeftTimeHangTime > 0)
+			LeftTimeHangTime = LeftTimeHangTime - DeltaTime;  // the character still in the process down to the floor
+			if (LeftTimeHangTime > 0)	
 			{
-				Character->GetCharacterMovement()->DisableMovement();
+				Character->GetCharacterMovement()->DisableMovement();		// the character can not move during the ability
 				return false;
 			}
 			else
 			{
-				return CheckDamageToOthers();
+				return CheckDamageToOthers();		// the character is at the floor, and check any damage to the others around
 			}
 		}
 	};
@@ -83,7 +85,7 @@ void UGameplayAbilityGroundPound::ActivateAbility(const FGameplayAbilitySpecHand
 	Task->ReadyForActivation();
 
 
-	Hero->GetCharacterMovement()->GravityScale = 0.f;
+	Hero->GetCharacterMovement()->GravityScale = 0.f;			// can not down, when launch
 }
 
 void UGameplayAbilityGroundPound::OnTaskEnd()
@@ -101,19 +103,19 @@ bool UGameplayAbilityGroundPound::CheckDamageToOthers()
 		return false;
 	}
 
-	if (Hero->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Falling)
+	if (Hero->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Falling)		// change the character status when active the ability
 	{
 		Hero->GetCharacterMovement()->GravityScale = 1.f;
 		Hero->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
 		return false;
 	}
 
-	if (FMath::Abs(Hero->GetActorLocation().Z) > 2.f)		// on floor
+	if (FMath::Abs(Hero->GetActorLocation().Z) > 2.f)		// on floor  check character
 	{
 		return false;
 	}
 
-	Hero->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	Hero->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);		// when the character is on the floor, change the status of character
 	const FVector SelfLocation = Hero->GetActorLocation();
 	TArray<AActor*> AllActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), AllActors);
@@ -126,18 +128,18 @@ bool UGameplayAbilityGroundPound::CheckDamageToOthers()
 			continue;
 		}
 
-		if (EnemyCharacter->EntityTag != FGameplayTag::RequestGameplayTag(FName("Entities.NotFriendly")))
+		if (EnemyCharacter->EntityTag != FGameplayTag::RequestGameplayTag(FName("Entities.NotFriendly")))		// can not damage to not NotFriendly actors
 		{
 			continue;
 		}
 
 		float Distance = FVector::Dist(SelfLocation, EnemyCharacter->GetActorLocation());
-		if (Distance > ImpactRadius)
+		if (Distance > ImpactRadius)		// check the distance between the damaged character and self character, if can aplly the damage
 		{
 			continue;
 		}
 
-		EnemyCharacter->ReceiveDamage(DamageMultiplier * Distance);
+		EnemyCharacter->ReceiveDamage(DamageMultiplier / Distance);  // let the damage character receive damage, the distance is big the damage will be small
 	}
 
 	return true;

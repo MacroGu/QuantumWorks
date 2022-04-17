@@ -40,23 +40,28 @@ protected:
 
 
 	// configure data
+	//How long the player stays at the apex after the upward launch but before the downward launch.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float HangTime;
 
+	// How far/how much force that launches the player upward.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float LaunchHeight;
 
+	//A multiplying variable that multiplies the damage of the 	impact determined by how far OR how long the player 		travelled during the downward launch of the Ground Pound.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float DamageMultiplier;
 
+	//The radial distance of the Ground Pound impact.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float ImpactRadius;
 
+	// Determines how quickly the player reaches the apex of the movement.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float UpwardLaunchSpeed;
 
-	float LeftTimeHangTime;
-	bool bAlreadyUpToApex;
+	float LeftTimeHangTime;		// when the LeftTimeHangTime is 0, the ability should be over
+	bool bAlreadyUpToApex;		// show if is at the apex of this ability
 
 
 };

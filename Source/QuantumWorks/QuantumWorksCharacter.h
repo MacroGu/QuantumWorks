@@ -37,7 +37,7 @@ class AQuantumWorksCharacter : public ACharacter, public IAbilitySystemInterface
 
 public:
 	USkeletalMeshComponent* GetGunComponent() const { return GunComponent; }
-
+	bool GetIsRunningXRayVision() const { return bIsRunningRayVision; }
 
 public:
 	AQuantumWorksCharacter();
@@ -59,6 +59,8 @@ protected:
 	UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void AddCharacterAbilities();
 	void InitializeAttributes();
+	bool bIsRunningRayVision;	// to show if the ability is running
+
 
 protected:
 	// Default abilities for this Character. These will be removed on Character death and regiven if Character respawns.
@@ -122,5 +124,7 @@ protected:
 
 
 	void TestUpdateHealthValue();
+
+	void CheckIfCanStartXRayAbility();
 };
 

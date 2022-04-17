@@ -7,7 +7,7 @@
 
 
 /**
- *	Ability that Spell.
+ *	Ability that x-ray vision.
  */
 
 UCLASS()
@@ -25,24 +25,21 @@ public:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 	UFUNCTION()
-	void OnTaskEnd();
+	void OnTaskEnd();		// this ability is end
 
-	void DoRayVision();
+	bool DoRayVision();		// do the ray vision, that means let the objects outline
 
 protected:
 
 
 	// configure data
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	float XRayDistance;
+	float XRayDistance;			// the range that can apply the x ray vision ability
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	float NonFriendlyOutlineThickness;
+	float NonFriendlyOutlineThickness;		// Determines the thickness of the outlines of ¡®Non-Friendly¡¯ actors
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	float OtherElementsThickness;
-
-
-	bool bIsRunningRayVision;
+	float OtherElementsThickness;		// Determines the thickness of the outlines of all other elements
 
 };
