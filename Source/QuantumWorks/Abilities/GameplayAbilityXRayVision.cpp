@@ -69,8 +69,8 @@ bool UGameplayAbilityXRayVision::DoRayVision()		// return true means end ability
 		return true;
 	}
 
-	PC->SetNonFriendOutlineThickness(NonFriendlyOutlineThickness);
-	PC->SetOthersOutlineThickness(OtherElementsThickness);
+	PC->SetNonFriendOutlineThickness(NonFriendlyOutlineThickness);		// set thickness of nonfriend actor
+	PC->SetOthersOutlineThickness(OtherElementsThickness);		// set thickness of others actor
 
 
 	AQuantumWorksCharacter* Hero = Cast<AQuantumWorksCharacter>(GetAvatarActorFromActorInfo());
@@ -81,36 +81,44 @@ bool UGameplayAbilityXRayVision::DoRayVision()		// return true means end ability
 	}
 	const FVector SelfLocation = Hero->GetActorLocation();
 
+
 	TArray<AActor*> AllActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), AllActors);
 	for (auto OneActor : AllActors)
 	{
 		UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(OneActor->GetComponentByClass(UPrimitiveComponent::StaticClass()));
-		if (!PrimitiveComponent)
+		if (!PrimitiveComponent)		// only actor with primitive component can set outline
 		{
 			continue;
 		}
 
 		float Distance = FVector::Dist(SelfLocation, OneActor->GetActorLocation());
-		if (Distance > XRayDistance)
+		if (Distance > XRayDistance)		// if the actor range is bigger than configure, the actor can not be outline
 		{
-			PrimitiveComponent->SetCustomDepthStencilValue(3);
+			PrimitiveComponent->SetCustomDepthStencilValue((uint8)EXRay::CannotVision);
 		}
 		else
 		{
 			AQwEnemyCharacter* EnemyCharacter = Cast<AQwEnemyCharacter>(OneActor);
-			if (EnemyCharacter && EnemyCharacter->EntityTag == FGameplayTag::RequestGameplayTag(FName("Entities.NotFriendly")))
+			if (EnemyCharacter)
 			{
-				PrimitiveComponent->SetCustomDepthStencilValue(1);
+				if (EnemyCharacter->EntityTag == FGameplayTag::RequestGameplayTag(FName("Entities.NonFriendly")))
+				{
+					PrimitiveComponent->SetCustomDepthStencilValue((uint8)EXRay::NonFriendly);		// set outline for notfriendly
+				}
+				else if (EnemyCharacter->EntityTag == FGameplayTag::RequestGameplayTag(FName("Entities.Friendly")))
+				{
+					PrimitiveComponent->SetCustomDepthStencilValue((uint8)EXRay::Friendly);		// set outline for notfriendly
+				}
 			}
 			else
 			{
-				PrimitiveComponent->SetCustomDepthStencilValue(2);
+				PrimitiveComponent->SetCustomDepthStencilValue((uint8)EXRay::Others);		// set outline for others actor
 			}
 		}
 	}
 
-	if (!Hero->GetIsRunningXRayVision())
+	if (!Hero->GetIsRunningXRayVision())		// if the ability is stop, let all outline disappear
 	{
 		for (auto OneActor : AllActors)
 		{
@@ -119,7 +127,7 @@ bool UGameplayAbilityXRayVision::DoRayVision()		// return true means end ability
 			{
 				continue;
 			}
-			PrimitiveComponent->SetCustomDepthStencilValue(3);
+			PrimitiveComponent->SetCustomDepthStencilValue((uint8)EXRay::CannotVision);
 		}
 
 		return true;

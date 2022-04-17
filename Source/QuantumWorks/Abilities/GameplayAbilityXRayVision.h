@@ -10,6 +10,23 @@
  *	Ability that x-ray vision.
  */
 
+
+ /*
+ NonFriendly  configure 1  red
+ Friendly  configure 2  blue
+ Others   configure 3 green
+ and configure 4 means can not vision
+ */
+UENUM(BlueprintType)
+enum class EXRay : uint8
+{
+	None,			// 0 None
+	NonFriendly,	// configure 1  red
+	Friendly,		// configure 2  blue
+	Others,			// configure 3 green
+	CannotVision,	// configure 4  can not vision
+};
+
 UCLASS()
 class QUANTUMWORKS_API UGameplayAbilityXRayVision : public UQwGameplayAbility
 {
